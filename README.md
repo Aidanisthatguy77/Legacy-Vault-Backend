@@ -1,74 +1,49 @@
 # NBA 2K Legacy Vault Backend 🏀
 
-FastAPI + MongoDB backend for the NBA 2K Legacy Vault admin panel.
+FastAPI + MongoDB backend with React admin panel.
 
-## Features (15 Admin Tabs)
+## Structure
 
-| Tab | Purpose |
-|-----|---------|
-| **Games** | Manage 2K15-2K20 game entries |
-| **Clips** | Video clips management |
-| **Mockups** | UI mockup assets |
-| **Proof** | Evidence/proof images |
-| **Community** | Social/community wall |
-| **Live Feed** | Social media feed |
-| **Submissions** | User submissions |
-| **Content** | Site copy/text content |
-| **Comments** | Comment management |
-| **Emails** | Subscriber emails |
-| **Petition** | Signature collection |
-| **Deploy** | Live deploy to Render + Vercel |
-| **Monitor** | System health monitoring |
-| **Acceleration** | AI coding agent |
-| **Neplit** | Build + export tools |
+```
+├── backend/              # FastAPI backend
+│   ├── server.py         # Main API
+│   ├── requirements.txt  # Python deps
+│   ├── services/         # Monitor, Deployer
+│   └── utils/            # Exporter
+├── admin-frontend/       # React admin panel
+│   ├── src/App.jsx      # All 15 tabs
+│   └── package.json     # JS deps
+├── server.ts            # Deno version (alternative)
+└── deno.json            # Deno config
+```
 
-## Tech Stack
+## Quick Start
 
-- **Framework**: FastAPI + Uvicorn
-- **Database**: MongoDB (Motor async driver)
-- **AI**: Claude + Gemini dual engine
-- **Styling**: Red/Black/White
-
-## Setup
-
-### 1. Install Dependencies
-
+### Backend (FastAPI)
 ```bash
 cd backend
 pip install -r requirements.txt
+cp .env.example .env  # Edit with your values
+uvicorn server:app --host 0.0.0.0 --port 8001
 ```
 
-### 2. Configure Environment
-
+### Admin Panel (React)
 ```bash
-cp .env.example .env
-# Edit .env with your values
+cd admin-frontend
+npm install
+npm run dev
+# Opens at http://localhost:3001
 ```
 
-Required `.env` variables:
-```env
-MONGO_URL=mongodb://localhost:27017
-DB_NAME=vault_legacy
-ANTHROPIC_API_KEY=sk-ant-your-key
-GOOGLE_API_KEY=your-gemini-key
-ADMIN_PASSWORD=A@070610
-```
+## Deploy to Render (Free Backend)
 
-### 3. Run
-
-```bash
-uvicorn server:app --host 0.0.0.0 --port 8001 --reload
-```
-
-## Deploy to Render (Free)
-
-1. Create account at [render.com](https://render.com)
+1. Create account at render.com
 2. Connect GitHub repo
 3. Create Web Service:
-   - Build Command: `cd backend && pip install -r requirements.txt`
-   - Start Command: `cd backend && uvicorn server:app --host 0.0.0.0 --port 8001`
-4. Add environment variables from `.env.example`
-5. Deploy!
+   - Root Directory: `backend`
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `uvicorn server:app --host 0.0.0.0 --port 8001`
+4. Add environment variables
 
 ## API Endpoints
 
@@ -83,33 +58,11 @@ uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 | GET | `/api/clips` | List clips |
 | POST | `/api/clips` | Create clip |
 | GET | `/api/subscribers` | List subscribers |
-| POST | `/api/subscribers` | Subscribe email |
+| POST | `/api/subscribers` | Subscribe |
 | GET | `/api/petition/count` | Signature count |
 | POST | `/api/petition/sign` | Sign petition |
-| GET | `/api/content` | Get site content |
+| GET | `/api/content` | Get content |
 | PUT | `/api/content` | Update content |
 | POST | `/api/admin/login` | Admin login |
 | GET | `/api/monitor/status` | Monitor status |
 | GET | `/api/deploy/runs` | Deploy history |
-| POST | `/api/deploy/run` | Start deploy |
-
-## AI Chat Routing
-
-- **Media URLs** (YouTube, Twitter, Reddit) → Claude
-- **Text questions** → Gemini
-- **No API keys** → Built-in demo responses
-
-## Database Collections
-
-- `games` - Game era entries
-- `clips` - Video clips
-- `mockups` - UI mockups
-- `proofs` - Evidence images
-- `comments` - User comments
-- `subscribers` - Email list
-- `submissions` - User submissions
-- `petition_signatures` - Petition signatures
-- `content` - Site content (key-value)
-- `vault_chat_history` - Chat logs
-- `monitor_observations` - Health alerts
-- `deploy_runs` - Deploy history
