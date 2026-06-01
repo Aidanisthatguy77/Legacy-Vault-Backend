@@ -1,5 +1,5 @@
 """NBA 2K Legacy Vault Backend - FastAPI + MongoDB"""
-import os, re, uuid, json
+import os, re, uuid, json, asyncio
 from datetime import datetime, timezone
 from typing import Optional, List
 from pathlib import Path
@@ -24,6 +24,45 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "A@070610")
 CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*").split(",")
 
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=CORS_ORIGINS, allow_methods=["*"], allow_headers=["*"])
+
+# ============ HELPERS ============
+def _now(): return datetime.now(timezone.utc).isoformat()
+
+def verify_admin(req: Request):
+    if req.headers.get("X-Admin-Password", "") != ADMIN_PASSWORD:
+        raise HTTPException(status_code=403, detail="Invalid admin password")
+
+async def fetch_url_content(url: str) -> str:
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as c:
+            r = await c.get(url, follow_redirects=True, headers={"User-Agent": "Mozilla/5.0"})
+            soup = BeautifulSoup(r.text, "html.parser")
+            for t in soup(["script", "style"]): t.decompose()
+            return soup.get_text(separator=" ", strip=True)[:12000]
+    except: return ""
+
+def detect_media(message: str) -> bool:
+    patterns = [r"youtube\.com", r"youtu\.be", r"twitter\.com", r"x\.com", r"reddit\.com", r"tiktok\.com", r"instagram\.com"]
+    return any(re.search(p, message) for p in patterns)
+
+async def call_llm(session_id: str, system: str, message: str, model: str = "gemini") -> str:
+    """Call LLM via emergentintegrations - ONE key routes to Claude or Gemini"""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        api_key = os.environ.get("EMERGENT_LLM_KEY", "")
+        if not api_key: return None
+        is_claude = "claude" in model
+        model_name = "claude-sonnet-4-5-20250929" if is_claude else "gemini-2.5-flash"
+        chat = LlmChat(api_key=api_key, session_id=session_id, system_message=system).with_model("anthropic" if is_claude else "gemini", model_name)
+        return await chat.send_message(UserMessage(text=message))
+    except: return None
+
+def demo_response(msg: str) -> str:
+    l = msg.lower()
+    if "licensing" in l or "music" in l: return "Modular asset layers handle licensing."
+    if "pilot" in l or "throwback" in l: return "48-hour NBA 2K16 Throwback Weekend. Budget under $750K."
+    if "vault" in l or "legacy" in l: return "Legacy Vault = game-within-a-game."
+    return "I am Vault AI! Ask about the Legacy Vault."
 
 # Models
 class GameBase(BaseModel):

@@ -1,111 +1,268 @@
 # NBA 2K Legacy Vault Backend 🏀
 
-FastAPI + MongoDB backend with React admin panel - the complete backend system for the Legacy Vault campaign.
+The complete backend system for the NBA 2K Legacy Vault campaign. This is a **self-editing, self-healing, self-deploying** platform.
 
-## What's Included
+## What Makes It Special
 
-### Backend (`/backend`)
-- **FastAPI** API server on port 8001
-- **MongoDB** database with Motor async driver
-- **AI Chat** with dual engine routing (Claude for URLs, Gemini for text)
-- **Background monitoring** service
-- **Deploy orchestrator** for Render + Vercel
+This isn't just a backend — it's an autonomous platform:
 
-### Admin Frontend (`/admin-frontend`)
-- **React 18** app with Vite
-- **15 admin tabs** with full CRUD operations
-- **Red/Black/White** theme matching the site
-- Login with password authentication
+| Feature | Description |
+|---------|-------------|
+| **Self-Editing** | Acceleration Agent rewrites the codebase via AI |
+| **Self-Healing** | Monitor detects issues and dispatches fixes automatically |
+| **Self-Cloning** | Full System Export creates a redeployable zip anywhere |
+| **Self-Deploying** | One button → GitHub → Atlas → Render → Vercel |
+| **Self-Explaining** | Vault Guide answers questions about the system |
 
-## Structure
+## Architecture
 
 ```
-Legacy-Vault-Backend/
-├── backend/
-│   ├── server.py              # Main FastAPI app (all routes)
-│   ├── requirements.txt        # Python dependencies
-│   ├── .env.example           # Environment template
-│   ├── services/
-│   │   ├── monitor.py         # Background health checker
-│   │   └── deployer.py        # Deploy orchestration
-│   └── utils/
-│       └── exporter.py        # Full system export
-├── admin-frontend/
-│   ├── src/App.jsx            # All 15 admin tabs
-│   ├── src/main.jsx           # React entry
-│   ├── src/index.css          # Tailwind styles
-│   ├── package.json           # JS dependencies
-│   ├── vite.config.js         # Vite config
-│   └── tailwind.config.js     # Tailwind config
-└── README.md
+┌─────────────────────────────────────────────────────────────┐
+│                     NBA 2K Legacy Vault                      │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐     ┌──────────────┐     ┌─────────────┐ │
+│  │   Public     │     │   Admin      │     │   Backend   │ │
+│  │   Site (/)   │     │   (/admin)   │     │  (8001)     │ │
+│  └──────────────┘     └──────────────┘     └──────┬──────┘ │
+│                                                    │        │
+│                                            ┌───────▼───────┐ │
+│                                            │    MongoDB    │ │
+│                                            └───────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+## Tech Stack
+
+- **Backend**: FastAPI + Uvicorn (Python 3.11)
+- **Database**: MongoDB 7 (Motor async driver)
+- **AI**: `emergentintegrations` library (ONE key → Claude/Gemini routing)
+- **Frontend**: React 19 + Vite (see admin-frontend/)
+
+## ONE AI Key
+
+This project uses **`EMERGENT_LLM_KEY`** — a single key that routes to Claude or Gemini automatically:
+
+```bash
+pip install emergentintegrations --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/
+```
+
+- **Claude Sonnet**: For media URLs (YouTube, Twitter, Reddit analysis)
+- **Gemini Flash**: For fast text responses
 
 ## Quick Start
 
-### 1. Backend (Python/FastAPI)
+### 1. Backend
 
 ```bash
 cd backend
 pip install -r requirements.txt
-cp .env.example .env
-# Edit .env with your values (see below)
+cp .env.example .env  # Edit with your values
 uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-### 2. Admin Panel (React)
+### 2. Admin Panel
 
 ```bash
 cd admin-frontend
 npm install
 npm run dev
-# Opens at http://localhost:3001
+```
+
+### 3. Docker (Everything at once!)
+
+```bash
+docker compose up
 ```
 
 ## Environment Variables
 
-Create `backend/.env` with:
-
 ```env
-# MongoDB (required)
+# MongoDB
 MONGO_URL=mongodb://localhost:27017
 DB_NAME=vault_legacy
 
-# API Keys (optional - demo mode works without)
-ANTHROPIC_API_KEY=sk-ant-your-claude-key
-GOOGLE_API_KEY=your-gemini-key
+# ONE AI Key (from emergentintegrations dashboard)
+EMERGENT_LLM_KEY=sk-emergent-your-key-here
 
-# Admin (change this!)
+# Admin password
 ADMIN_PASSWORD=A@070610
 
-# CORS (comma-separated)
+# CORS origins (comma-separated)
 CORS_ORIGINS=http://localhost:3000,http://localhost:3001
 
 # Monitor interval (seconds)
 MONITOR_INTERVAL=60
 ```
 
+## MongoDB Collections (19 total)
+
+| Collection | Purpose |
+|------------|---------|
+| `games` | Game era entries (2K15-2K20) |
+| `clips` | Video clips |
+| `mockups` | UI mockup assets |
+| `proofs` | Evidence images |
+| `comments` | User comments |
+| `subscribers` | Email subscriptions |
+| `submissions` | Creator submissions |
+| `petition_signatures` | Petition signatures |
+| `content` | Site copy (key-value) |
+| `community_posts` | Social posts |
+| `social_feed` | Live social feed |
+| `era_votes` | Era voting |
+| `vault_chat_history` | AI chat logs |
+| `acceleration_agent_sessions` | Agent sessions |
+| `monitor_observations` | Health alerts |
+| `monitor_heartbeats` | Monitor timestamps |
+| `deploy_runs` | Deploy history |
+| `deploy_tokens` | Saved API tokens |
+| `secrets_vault` | Encrypted credentials |
+
+## API Endpoints (Full List)
+
+### Public Site
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/games` | List active games |
+| GET | `/api/clips` | List clips |
+| GET | `/api/mockups` | List mockups |
+| GET | `/api/proofs` | List proofs |
+| GET | `/api/comments` | List comments |
+| POST | `/api/comments` | Add comment |
+| GET | `/api/subscribers` | List (admin) |
+| POST | `/api/subscribers` | Subscribe |
+| GET | `/api/petition/count` | Signature count |
+| GET | `/api/petition/signatures` | All signatures |
+| POST | `/api/petition/sign` | Sign petition |
+| GET | `/api/votes` | Vote counts |
+| POST | `/api/votes` | Cast vote |
+| GET | `/api/community-posts` | Social posts |
+| POST | `/api/community-posts` | Create post |
+| GET | `/api/social-feed` | Live feed |
+| POST | `/api/social-feed` | Add to feed |
+| GET | `/api/content` | Site content |
+| GET | `/api/submissions` | List (admin) |
+| POST | `/api/submissions` | Submit |
+| POST | `/api/chat` | AI chat (dual engine) |
+| GET | `/api/health` | Health check |
+| GET | `/api/health/pulse` | Lightweight ping |
+
+### Admin (requires X-Admin-Password header)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/admin/login` | Login |
+| PUT | `/api/content` | Update content |
+| PUT | `/api/games/{id}` | Update game |
+| DELETE | `/api/games/{id}` | Delete game |
+| DELETE | `/api/clips/{id}` | Delete clip |
+| DELETE | `/api/subscribers/{id}` | Unsubscribe |
+| DELETE | `/api/comments/{id}` | Delete comment |
+| PUT | `/api/submissions/{id}/status` | Update status |
+
+### Acceleration Agent
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/admin/acceleration/agent` | Run agent |
+| GET | `/api/admin/acceleration/sessions` | List sessions |
+| GET | `/api/admin/acceleration/history/{id}` | Get history |
+
+### Deploy
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/acceleration/deploy/tokens` | Get token status |
+| POST | `/api/admin/acceleration/deploy/tokens` | Save tokens |
+| POST | `/api/admin/acceleration/deploy/run` | Start deploy |
+| GET | `/api/admin/acceleration/deploy/runs` | List runs |
+| GET | `/api/admin/acceleration/deploy/runs/{id}` | Run details |
+| DELETE | `/api/admin/acceleration/deploy/runs/{id}` | Delete run |
+
+### Monitor
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/acceleration/monitor/status` | Monitor status |
+| GET | `/api/admin/acceleration/monitor/observations` | List observations |
+| POST | `/api/admin/acceleration/monitor/observations/{id}/dismiss` | Dismiss |
+| POST | `/api/admin/acceleration/monitor/observations/{id}/fix` | Run Fix |
+| POST | `/api/admin/acceleration/monitor/observations/clear` | Clear fixed/dismissed |
+| POST | `/api/admin/acceleration/monitor/apply-link` | Apply from URL |
+
+### Vault Guide
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/vault-guide` | Ask about the system |
+
+### Nep (Dev Partner)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/nep/chat` | Conversational help |
+
+### Secrets
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/secrets` | List secret keys |
+| PUT | `/api/admin/secrets` | Save secret |
+
+### System
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/seed` | Seed initial data |
+
+## Acceleration Agent
+
+The centerpiece of the system — an embedded coding partner that can:
+
+- Read/write/edit files
+- Run shell commands
+- Install dependencies
+- Restart services
+- Chain multi-step tasks autonomously
+
+### Agent Tools
+
+```
+read_file     - Read any file in /app
+write_file    - Write any file in /app
+edit_file     - Edit specific text in a file
+list_dir      - List directory contents
+bash          - Run shell commands
+pip_install   - Install Python packages
+yarn_add      - Install Node packages
+restart_service - Restart backend/frontend
+```
+
+### How It Works
+
+1. You send a message
+2. Agent responds with JSON tool calls
+3. Tools execute and return results
+4. Agent continues until task is done
+5. Max 14 iterations per session
+
 ## Deploy Backend to Render (Free)
 
-1. Go to [render.com](https://render.com) → Sign up with GitHub
-2. Click **New** → **Web Service**
-3. Connect your GitHub repo
-4. Configure:
-   - **Root Directory**: `backend`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn server:app --host 0.0.0.0 --port 8001`
-   - **Plan**: Free
-5. Add environment variables from `.env.example`
-6. Click **Create Web Service**
+1. Go to [render.com](https://render.com) → Connect GitHub
+2. Create Web Service → Root: `backend`
+3. Build Command: `pip install -r requirements.txt`
+4. Start Command: `uvicorn server:app --host 0.0.0.0 --port 8001`
+5. Add environment variables
+6. Deploy!
 
 ## Deploy Admin Panel to Vercel (Free)
 
-1. Go to [vercel.com](https://vercel.com) → Sign up with GitHub
-2. Import `admin-frontend` project
-3. Add environment variable:
-   - `VITE_API_URL` = your backend URL (e.g., `https://vault-backend.onrender.com`)
-4. Deploy!
+1. Go to [vercel.com](https://vercel.com) → Import `admin-frontend`
+2. Add `VITE_API_URL` = your backend URL
+3. Deploy!
 
-## MongoDB Atlas Setup (Free)
+## MongoDB Atlas Setup
 
 1. Go to [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
 2. Create free **M0** cluster
@@ -113,129 +270,24 @@ MONITOR_INTERVAL=60
 4. Whitelist IP `0.0.0.0/0`
 5. Copy connection string → use as `MONGO_URL`
 
-## API Endpoints
+## Files
 
-### Health
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/health` | Full health check |
-| GET | `/api/health/pulse` | Lightweight ping |
-
-### Admin
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/admin/login` | Admin login |
-
-### Games
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/games` | List active games |
-| GET | `/api/games/all` | List all games |
-| POST | `/api/games` | Create game |
-| PUT | `/api/games/{id}` | Update game |
-| DELETE | `/api/games/{id}` | Delete game |
-
-### Clips
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/clips` | List active clips |
-| GET | `/api/clips/all` | List all clips |
-| POST | `/api/clips` | Create clip |
-| PUT | `/api/clips/{id}` | Update clip |
-| DELETE | `/api/clips/{id}` | Delete clip |
-
-### Mockups
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/mockups` | List active mockups |
-| POST | `/api/mockups` | Create mockup |
-| PUT | `/api/mockups/{id}` | Update mockup |
-| DELETE | `/api/mockups/{id}` | Delete mockup |
-
-### Proofs
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/proofs` | List active proofs |
-| POST | `/api/proofs` | Create proof |
-| DELETE | `/api/proofs/{id}` | Delete proof |
-
-### Subscribers
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/subscribers` | List all (admin) |
-| POST | `/api/subscribers` | Subscribe email |
-| DELETE | `/api/subscribers/{id}` | Unsubscribe (admin) |
-
-### Comments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/comments` | List comments |
-| POST | `/api/comments` | Add comment |
-| DELETE | `/api/comments/{id}` | Delete (admin) |
-
-### Petition
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/petition/count` | Signature count |
-| GET | `/api/petition/signatures` | All signatures |
-| POST | `/api/petition/sign` | Sign petition |
-
-### Submissions
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/submissions` | List (admin) |
-| POST | `/api/submissions` | Submit |
-| PUT | `/api/submissions/{id}/status` | Update status (admin) |
-
-### Content
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/content` | Get all content |
-| PUT | `/api/content` | Update content (admin) |
-
-### Chat
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/chat` | AI chat (dual engine) |
-| POST | `/api/vault-guide` | Admin AI helper |
-
-### Deploy
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/deploy/runs` | Deploy history (admin) |
-| POST | `/api/deploy/run` | Start deploy |
-
-### Monitor
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/monitor/status` | Monitor status |
-| GET | `/api/monitor/observations` | List observations (admin) |
-| POST | `/api/monitor/observations/{id}/dismiss` | Dismiss (admin) |
-
-### System
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/seed` | Seed initial data |
-
-## AI Chat Routing
-
-The `/api/chat` endpoint uses intelligent routing:
-
-- **Media URLs** (YouTube, Twitter, Reddit, TikTok) → **Claude** (for analysis)
-- **Text questions** → **Gemini** (fast responses)
-- **No API keys** → Built-in demo responses
-
-## Database Collections
-
-- `games` - Game era entries (2K15-2K20)
-- `clips` - Video clips
-- `mockups` - UI mockup assets
-- `proofs` - Evidence/proof images
-- `comments` - User comments
-- `subscribers` - Email subscriptions
-- `submissions` - Creator submissions
-- `petition_signatures` - Petition signatures
-- `content` - Site content (key-value)
-- `vault_chat_history` - Chat logs
-- `monitor_observations` - Health alerts
-- `deploy_runs` - Deploy history
+```
+Legacy-Vault-Backend/
+├── backend/
+│   ├── server.py              # Main FastAPI app
+│   ├── acceleration_agent.py  # AI coding agent
+│   ├── requirements.txt       # Python deps
+│   ├── .env.example           # Environment template
+│   ├── Dockerfile             # Docker container
+│   ├── services/
+│   │   ├── monitor.py         # Background watchdog
+│   │   └── deployer.py        # Deploy orchestration
+│   └── utils/
+│       └── exporter.py        # Full system export
+├── admin-frontend/             # React admin panel
+│   └── src/App.jsx            # All 15 admin tabs
+├── docker-compose.yml          # Dev setup
+├── docker-compose.prod.yml    # Production setup
+└── README.md
+```
