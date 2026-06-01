@@ -1,21 +1,11 @@
-# Docker Compose - NBA 2K Legacy Vault
-# Run with: docker compose up
+# Docker Compose - NBA 2K Legacy Vault (Cloud-Ready)
+# 
+# IMPORTANT: This expects MongoDB Atlas connection string in MONGO_URL
+# Run: docker compose up
+#
+# No local MongoDB needed - connects to your Atlas cluster in the cloud!
 
 services:
-  # MongoDB Database
-  mongo:
-    image: mongo:7
-    container_name: vault_mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # Backend API (FastAPI)
   backend:
     build: ./backend
@@ -23,15 +13,17 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - MONGO_URL=mongodb://mongo:27017
-      - DB_NAME=vault_legacy
+      - MONGO_URL=${MONGO_URL}
+      - DB_NAME=${DB_NAME:-vault_legacy}
+      - EMERGENT_LLM_KEY=${EMERGENT_LLM_KEY}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-A@070610}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
-      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
-    depends_on:
-      mongo:
-        condition: service_healthy
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
 
   # Frontend React App
   frontend:
@@ -40,9 +32,11 @@ services:
     ports:
       - "3001:3000"
     environment:
-      - VITE_API_URL=http://localhost:8001
+      - VITE_API_URL=${BACKEND_URL:-http://localhost:8001}
     depends_on:
       - backend
+    restart: unless-stopped
 
-volumes:
-  mongo_data:
+networks:
+  default:
+    name: vault_network
